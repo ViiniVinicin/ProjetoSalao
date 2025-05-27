@@ -1,132 +1,46 @@
-// Localização: src/main/java/com/salaobeleza/model/Agendamento.java
+// Em Agendamento.java
 package com.salaobeleza.model;
 
+import jakarta.persistence.*; // ou javax.persistence.* dependendo da sua versão do Spring Boot
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "agendamentos") // Nome da tabela no banco
 public class Agendamento {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Cliente cliente;
+
+    @ManyToOne // Muitos Agendamentos para Um Cliente
+    @JoinColumn(name = "cliente_id", nullable = false) // Chave estrangeira na tabela agendamentos
+    private Cliente cliente; // Este é o campo que o "mappedBy = cliente" na classe Cliente se refere
+
+    @ManyToOne // Muitos Agendamentos para Um Servico
+    @JoinColumn(name = "servico_id", nullable = false)
     private Servico servico;
+
+    @ManyToOne // Muitos Agendamentos para Um Profissional
+    @JoinColumn(name = "profissional_id", nullable = false)
     private Profissional profissional;
+
+    @Column(name = "data_hora_inicio", nullable = false)
     private LocalDateTime dataHoraInicio;
+
+    @Column(name = "data_hora_fim", nullable = false)
     private LocalDateTime dataHoraFim;
-    private BigDecimal valorCobrado; // Pode ser o valor base do serviço ou um valor customizado
-    private String observacoesAdicionais; // Notas específicas para este agendamento
-    private StatusAgendamento status;
 
-    // Construtor padrão
-    public Agendamento() {
-    }
+    @Column(name = "valor_cobrado")
+    private BigDecimal valorCobrado;
 
-    // Construtor com campos essenciais (dataHoraFim pode ser calculada)
-    public Agendamento(Cliente cliente, Servico servico, Profissional profissional,
-                       LocalDateTime dataHoraInicio, BigDecimal valorCobrado, StatusAgendamento status) {
-        this.cliente = cliente;
-        this.servico = servico;
-        this.profissional = profissional;
-        this.dataHoraInicio = dataHoraInicio;
-        this.valorCobrado = valorCobrado; // Inicialmente pode ser o servico.getValorBase()
-        this.status = status;
-        // Calcular dataHoraFim baseado no tempoMedioExecucao do serviço
-        if (servico != null && dataHoraInicio != null) {
-            this.dataHoraFim = dataHoraInicio.plusMinutes(servico.getTempoMedioExecucao());
-        }
-    }
+    @Column(name = "observacoes_adicionais", columnDefinition = "TEXT")
+    private String observacoesAdicionais;
 
-    // Getters e Setters
-    public Long getId() {
-        return id;
-    }
+    @Enumerated(EnumType.STRING) // Grava o Enum como String no banco
+    @Column(name = "status", nullable = false)
+    private StatusAgendamento status; // Seu Enum StatusAgendamento
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
-
-    public Servico getServico() {
-        return servico;
-    }
-
-    public void setServico(Servico servico) {
-        this.servico = servico;
-        // Recalcular dataHoraFim se o serviço ou dataHoraInicio mudarem e ambos estiverem definidos
-        if (this.dataHoraInicio != null && this.servico != null) {
-            this.dataHoraFim = this.dataHoraInicio.plusMinutes(this.servico.getTempoMedioExecucao());
-        }
-    }
-
-    public Profissional getProfissional() {
-        return profissional;
-    }
-
-    public void setProfissional(Profissional profissional) {
-        this.profissional = profissional;
-    }
-
-    public LocalDateTime getDataHoraInicio() {
-        return dataHoraInicio;
-    }
-
-    public void setDataHoraInicio(LocalDateTime dataHoraInicio) {
-        this.dataHoraInicio = dataHoraInicio;
-        // Recalcular dataHoraFim se o serviço ou dataHoraInicio mudarem e ambos estiverem definidos
-        if (this.dataHoraInicio != null && this.servico != null) {
-            this.dataHoraFim = this.dataHoraInicio.plusMinutes(this.servico.getTempoMedioExecucao());
-        }
-    }
-
-    public LocalDateTime getDataHoraFim() {
-        return dataHoraFim;
-    }
-
-    public void setDataHoraFim(LocalDateTime dataHoraFim) {
-        // Geralmente é calculado, mas pode permitir setar manualmente em casos especiais
-        this.dataHoraFim = dataHoraFim;
-    }
-
-    public BigDecimal getValorCobrado() {
-        return valorCobrado;
-    }
-
-    public void setValorCobrado(BigDecimal valorCobrado) {
-        this.valorCobrado = valorCobrado;
-    }
-
-    public String getObservacoesAdicionais() {
-        return observacoesAdicionais;
-    }
-
-    public void setObservacoesAdicionais(String observacoesAdicionais) {
-        this.observacoesAdicionais = observacoesAdicionais;
-    }
-
-    public StatusAgendamento getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusAgendamento status) {
-        this.status = status;
-    }
-
-    // É uma boa prática adicionar toString(), equals() e hashCode()
-    @Override
-    public String toString() {
-        return "Agendamento{" +
-                "id=" + id +
-                ", cliente=" + (cliente != null ? cliente.getNome() : "null") +
-                ", servico=" + (servico != null ? servico.getNome() : "null") +
-                ", profissional=" + (profissional != null ? profissional.getNome() : "null") +
-                ", dataHoraInicio=" + dataHoraInicio +
-                ", status=" + status +
-                '}';
-    }
+    // Construtores, Getters e Setters (essenciais para JPA)
+    // ...
 }

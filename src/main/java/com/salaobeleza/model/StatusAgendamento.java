@@ -1,3 +1,4 @@
+// Localização: src/main/java/com/salaobeleza/model/StatusAgendamento.java
 package com.salaobeleza.model;
 
 public enum StatusAgendamento {
